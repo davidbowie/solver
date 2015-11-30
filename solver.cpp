@@ -91,7 +91,6 @@ void mapOperations(Mapping*& map) {
 	map->add("cos",	cos);
 	map->add("sqrt",sqrt);
 	map->add("abs",	fabs);
-
 }
 
 int main(int argc, char* argv[])
