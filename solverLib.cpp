@@ -44,19 +44,6 @@ string Expression::str = "";
 string Expression::strVar = "";
 string::iterator Expression::parsePos;
 
-
-/*
- * Functions class methods
- */
-
-Functions& Functions::Instance() {
-
-	static Functions instance;
-	return instance;
-}
-
-
-
 /*
  *  OperatorClass class methods 
  */

@@ -48,21 +48,6 @@ Numeric divide(Numeric a, Numeric b) {
 	return a / b;
 }
 
-
-// Generate list of available functions
-void createFunctionsList(Functions*& list)
-{
-	list = &Functions::Instance();
-
-	list->add(make_shared<Function>("ln"));
-	list->add(make_shared<Function>("log"));
-	list->add(make_shared<Function>("sin"));
-	list->add(make_shared<Function>("cos"));
-	list->add(make_shared<Function>("sqrt"));
-	list->add(make_shared<Function>("abs"));
-
-}
-
 // Create list of operators hierarchy
 void createOperatorsList(OperatorClasses*& list)
 {

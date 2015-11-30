@@ -168,27 +168,6 @@ public:
 
 };
 
-class Function {
-
-	std::string mnem; 												// Mnemonic
-
-public:
-	Function(std::string mnem) : mnem(mnem) {}
-	std::string mnemonic() {return mnem;}
-};
-
-class Functions : public List<Function>{
-	
-	Functions(){};
-	Functions(Functions const&) = delete;
-	Functions& operator=(Functions const&) = delete;
-	
-public:
-
-	static Functions& Instance();
-};
-
-
 class Operator {
 /* Class holding single operator */
 
@@ -214,7 +193,6 @@ public:
 	std::string getAll(){return all;}							// List all operators
 	Byte getPriority(){return priority;}
 
-//	friend class OperatorClasses;
 };
 
 class OperatorClasses : public List<OperatorClass> {
@@ -239,7 +217,6 @@ class OperatorBindingClass : public List<EssentialElement> {
 
 	SharedPtr<OperatorClass> operatorClass;
 
-//public:
 	OperatorBindingClass(SharedPtr<OperatorClass> operatorClass) :
 		operatorClass(operatorClass){};
 	SharedPtr<OperatorClass> getOperatorClass() {return operatorClass;}
@@ -251,7 +228,6 @@ class OperatorBindingClass : public List<EssentialElement> {
 
 class OperatorBindingClasses : public List<OperatorBindingClass> {
 
-//public:
 	OperatorBindingClasses(OperatorClasses* const operatorClasses);
 	void bindElement(SharedPtr<EssentialElement> essentialElement);
 
@@ -265,7 +241,6 @@ class StateBinding {
 	CharType currentChar;
 	MapElemFunction map;
 
-//public:
 	StateBinding(CharType currentChar) : currentChar(currentChar) {};
 	void add(CharType precedingChar, FPtr function, Signal signal);
 	ReturnCode exec(CharType precedingChar, Expression* thisExpression);
@@ -280,7 +255,6 @@ class StateBinding {
 
 class StatesMap : public List<StateBinding> {
 
-//public:
 	void initialize(Expression* thisExpression);
 
 	friend class Expression;
