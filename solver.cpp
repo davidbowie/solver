@@ -106,10 +106,8 @@ int main(int argc, char* argv[])
 	OperatorClasses* list;
 	createOperatorsList(list);	
 	
-	//string str = "-sin(3+4^(2/3))(2+4/3)+2.0+4*2^3+10/3-2^3+3^2";
-	string str = "abs((3+2^(4-3)/5+6-1.2-8/10)-2(2-1)(45/9)-log(10))";
+	string str = "sqrt(((-log(2(1+abs((3+2^(4-3)/5+6-1.2-8/10)-2(2-1)(45/9)-log(10)))+40/50))^3+2)*25)";
 
-	//exit(0);
 	cout << "\n\n===============EQUATION 1.0==================\n\n";
 	cout << str << endl;
 	Expression exp(str, list, map);

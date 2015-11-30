@@ -15,4 +15,4 @@ $(EXECUTABLE): $(OBJECTS)
 	
 .PHONY: clean
 clean:
-	rm *o equation
+	rm *o solver 

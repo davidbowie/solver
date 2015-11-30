@@ -229,9 +229,10 @@ void StatesMap::initialize(Expression* thisExpression) {
 	// OPERATOR
 	next();
 	ptr = getCurrent();
+	ptr->add(type_brace_open, &Expression::_getOperator, CHECK_IF_MINUS);
 	ptr->add(type_brace_close, &Expression::_getOperator, SIGNAL_DEFAULT);
 	ptr->add(type_digit, &Expression::_getOperator, STORE_NUMBER);
-	ptr->add(type_unknown, &Expression::_getOperator, SIGNAL_DEFAULT);
+	ptr->add(type_unknown, &Expression::_getOperator, CHECK_IF_MINUS);
 
 	// UNKNOWN
 	next();
@@ -452,6 +453,12 @@ ReturnCode Expression::_getOperator(Signal signal){
 			addElement(getNumber());
 		case SIGNAL_DEFAULT:
 			temp_operator = getChar();
+			return OK;
+		case CHECK_IF_MINUS:
+			temp_operator = getChar();
+			if (temp_operator != "-"){ 
+				return PARSE_ERROR;
+			}
 			return OK;
 
 		default:
