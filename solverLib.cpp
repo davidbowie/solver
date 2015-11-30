@@ -1,10 +1,26 @@
-// SOLVERLIB.CPP
-//
+/*
+EXP-SOLVER - program calculating math expressions
+
+solverLib.cpp -  main library 
+
+Copyright (C) 2015 Marcin Możejko
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "solverTempl.h"
 #include "solverLib.h"
-#include <sstream>
-#include <string>
 #include <iostream>
 
 using namespace std;
@@ -84,7 +100,6 @@ OperatorBindingClasses::OperatorBindingClasses(OperatorClasses* const operatorCl
 	operatorClasses->first();
 	do {
 		ptr = SharedPtr<OperatorBindingClass>(new OperatorBindingClass(operatorClasses->getCurrent()));
-		//ptr = make_shared<OperatorBindingClass>(operatorClasses->getCurrent());
 		add(ptr);	
 
 	} while (operatorClasses->next());
@@ -308,8 +323,6 @@ SharedPtr<EssentialElement> Expression::getNumber() {
 	strVar = "";
 	return ptrElem;
 
-	// TODO: FUNKCJE!!!!
-
 }
 
 void Expression::addElement(SharedPtr<EssentialElement> ptrElem) {
@@ -341,7 +354,9 @@ ReturnCode Expression::elementaryFunctionExec(CharType currentCharType, CharType
 
 ReturnCode Expression::_newSubExpression(Signal signal){
 
+#ifdef DEBUG
 	cout << "S";
+#endif
 	openedBraces++;
 
 //	return;
@@ -358,7 +373,9 @@ ReturnCode Expression::_newSubExpression(Signal signal){
 			strOperator = this->temp_operator;
 			strFunction = this->strVar;
 			strVar = "";
+#ifdef DEBUG
 			cout << "\n\n===============FUNC!!!!===========\n\n";
+#endif
 			break;
 		case ATTACH_MUL_STORE_NUMBER:
 			addElement(getNumber());
@@ -394,7 +411,9 @@ ReturnCode Expression::_newSubExpression(Signal signal){
 
 ReturnCode Expression::_closeSubExpression(Signal signal){
 
+#ifdef DEBUG
 	cout << "C";
+#endif
 	openedBraces--;
 
 	switch (signal) {
@@ -414,8 +433,9 @@ ReturnCode Expression::_closeSubExpression(Signal signal){
 
 ReturnCode Expression::_getNumber(Signal signal){
 
+#ifdef DEBUG
 	cout << "N";
-	
+#endif
 	switch (signal) {
 	
 		case SIGNAL_DEFAULT:
@@ -430,8 +450,9 @@ ReturnCode Expression::_getNumber(Signal signal){
 
 ReturnCode Expression::_getFunction(Signal signal){
 
+#ifdef DEBUG
 	cout << "F";
-
+#endif
 	switch (signal) {
 
 		case SIGNAL_DEFAULT:
@@ -445,8 +466,9 @@ ReturnCode Expression::_getFunction(Signal signal){
 
 ReturnCode Expression::_getOperator(Signal signal){
 
+#ifdef DEBUG
 	cout << "O";
-
+#endif
 	switch (signal) {
 
 		case STORE_NUMBER:
@@ -469,8 +491,9 @@ ReturnCode Expression::_getOperator(Signal signal){
 
 ReturnCode Expression::_null(Signal signal){
 
+#ifdef DEBUG
 	cout << ".";
-
+#endif
 	switch (signal) {
 	
 		case STORE_NUMBER:
@@ -490,8 +513,9 @@ ReturnCode Expression::parse(){
 
 	string s;
 
+#ifdef DEBUG
 	cout << "EQUATION NO: " << this->getId() << endl;
-
+#endif
 	ReturnCode code = OK;
 
 	temp_operator = "+";
@@ -507,12 +531,16 @@ ReturnCode Expression::parse(){
 		code = elementaryFunctionExec(currentCharType, precedingCharType);
 
 		if (code == PARSE_ERROR) {
+#ifdef DEBUG
 			cout << "P";
+#endif
 			return code;
 		}
 		else
 		if (code == SUBEQUATION_EXIT) {
+#ifdef DEBUG
 			cout << endl << "SUBEXIT CHAR: " << getChar() << endl;
+#endif
 			return OK;
 		}
 		else
@@ -525,18 +553,23 @@ ReturnCode Expression::parse(){
 	code = elementaryFunctionExec(type_unknown, currentCharType);
 
 	if (code == PARSE_ERROR) {
-		cout << "P";
+#ifdef DEBUG
+	cout << "P";
+#endif
 		return code;
 	}
 
 	if (openedBraces) {
-		cout << "SYNTAX ERROR" << endl;
+#ifdef DEBUG
+	cout << "SYNTAX ERROR" << endl;
+#endif
 		return PARSE_ERROR;
 	}
 
 
+#ifdef DEBUG
 	cout << endl;
-
+#endif
 	return OK;
 
 }
@@ -544,8 +577,9 @@ ReturnCode Expression::parse(){
 
 SharedPtr<EssentialElement> Expression::calculate(){
 
+#ifdef DEBUG
 	cout << "\n\n============CALCULATING===========\n\n";
-
+#endif
 	/*
 	 * Everything has been parsed into elementary elements with preceding operators
 	 * Now its time to perform all aritmethic operations
@@ -565,14 +599,16 @@ SharedPtr<EssentialElement> Expression::calculate(){
 	do {
 
 		expElemPtr = getCurrent();
-        cout << expElemPtr->strOperator;
+#ifdef DEBUG
+		cout << expElemPtr->strOperator;
 		cout << expElemPtr->value << " ";
-
+#endif
 	} while (next());
 
 
+#ifdef DEBUG
 	cout << "\n\n======================================\n\n";
-
+#endif
 
 	operatorBindingClasses->first();
 
@@ -580,46 +616,51 @@ SharedPtr<EssentialElement> Expression::calculate(){
 
 		if (operatorBindingClasses->getIterator() ==
 			operatorBindingClasses->getIteratorLast()) {
-			   cout << "LAST CLASS!\n";
-			   highestPriority = true;
+#ifdef DEBUG
+		   cout << "LAST CLASS!\n";
+#endif
+		   highestPriority = true;
 		}
 		
 		opBindClassPtr = operatorBindingClasses->getCurrent();
 		opClassPtr = opBindClassPtr->getOperatorClass();
+#ifdef DEBUG
 		cout << "OPERATOR CLASS: " << opClassPtr->getPriority() << endl;
-
+#endif
 		opClassPtr->first();
 		allOperators = opClassPtr->getAll();			
+#ifdef DEBUG
 		cout << "OPERATORS: " << allOperators << endl;
-
+#endif
 		opBindClassPtr->first();
 		if (!opBindClassPtr->empty()) {
 		
-			//cout << "\n\nWESZLO!!               \n\n";
 
 			do {
 				bindElemPtr = opBindClassPtr->getCurrent();
 
-				//cout << "++++++++++++++++++++++";
 
+#ifdef DEBUG
 				cout << bindElemPtr->strOperator;
 				cout << bindElemPtr->strFunction << "(";
 				cout << bindElemPtr->value << ") ";
-			
-				//cout << "@@@@@@@@@@@@@@@2";
+#endif		
 			
 				it = find(bindElemPtr);
 
-				//cout << "#";
 
 				obj = *it;
 
 				// checking if the element has function attached to it
 				if (obj->strFunction != "" ) {
+#ifdef DEBUG
 					cout << "\n\n+++++++++++++CALCULATING FUNCTION!+++++++++++\nVALUE BEFORE: " << obj->value;
+#endif
 					// assigning the value returned from the function 
 					b = operatorMapping->operate(bindElemPtr->strFunction, obj->value);
+#ifdef DEBUG
 					cout << "\nVALUE AFTER: " << b << "\n\n";
+#endif			
 				}
 				else
 					// no function
@@ -650,23 +691,28 @@ SharedPtr<EssentialElement> Expression::calculate(){
 
 			} while (opBindClassPtr->next());	
 		} // if (!opBindClassPtr->empty())
-		cout << endl;
+#ifdef DEBUG
+	cout << endl;
+#endif
 
 	} while (operatorBindingClasses->next());
 
 	operatorBindingClasses.reset(); 		// Disposing OperatorBindingClasses instance
 
 
+#ifdef DEBUG
 	cout << "\n\n========================================\n\n";
-
 	cout << "Value EQ NO" << this->id << ": " << this->value << "\n\n";
+#endif
 
 	SharedPtr<EssentialElement> ptrElem = make_shared<EssentialElement>();
 	ptrElem->value = this->value;
 	ptrElem->strOperator = this->strOperator;
 	ptrElem->strFunction = this->strFunction;
 
+#ifdef DEBUG
 	cout << "F: " << ptrElem->strFunction << "\n";
+#endif
 
 	return ptrElem;
 
