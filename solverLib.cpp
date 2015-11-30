@@ -19,6 +19,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define DEBUG
+
 #include "solverTempl.h"
 #include "solverLib.h"
 #include <iostream>
@@ -455,6 +457,7 @@ ReturnCode Expression::_getOperator(Signal signal){
 
 #ifdef DEBUG
 	cout << "O";
+	cout << " - SIGNAL: " << signal << "\n";
 #endif
 	switch (signal) {
 
@@ -629,8 +632,7 @@ SharedPtr<EssentialElement> Expression::calculate(){
 
 #ifdef DEBUG
 				cout << bindElemPtr->strOperator;
-				cout << bindElemPtr->strFunction << "(";
-				cout << bindElemPtr->value << ") ";
+				cout << bindElemPtr->value << " ";
 #endif		
 			
 				it = find(bindElemPtr);
@@ -639,7 +641,7 @@ SharedPtr<EssentialElement> Expression::calculate(){
 				obj = *it;
 
 				// checking if the element has function attached to it
-				if (obj->strFunction != "" ) {
+/*				if (obj->strFunction != "" ) {
 #ifdef DEBUG
 					cout << "\n\n+++++++++++++CALCULATING FUNCTION!+++++++++++\nVALUE BEFORE: " << obj->value;
 #endif
@@ -649,7 +651,7 @@ SharedPtr<EssentialElement> Expression::calculate(){
 					cout << "\nVALUE AFTER: " << b << "\n\n";
 #endif			
 				}
-				else
+				else*/
 					// no function
 					b = obj->value;						// Getting numeric value
 			
@@ -692,14 +694,20 @@ SharedPtr<EssentialElement> Expression::calculate(){
 	cout << "Value EQ NO" << this->id << ": " << this->value << "\n\n";
 #endif
 
+	if (this->strFunction != "" ) {
+#ifdef DEBUG
+		cout << "\n\n+++++++++++++CALCULATING FUNCTION!+++++++++++\nVALUE BEFORE: " << this->value;
+#endif
+					// assigning the value returned from the function 
+		this->value = operatorMapping->operate(this->strFunction, this->value);
+#ifdef DEBUG
+		cout << "\nVALUE AFTER: " << this->value << "\n\n";
+#endif			
+	}
+
 	SharedPtr<EssentialElement> ptrElem = make_shared<EssentialElement>();
 	ptrElem->value = this->value;
 	ptrElem->strOperator = this->strOperator;
-	ptrElem->strFunction = this->strFunction;
-
-#ifdef DEBUG
-	cout << "F: " << ptrElem->strFunction << "\n";
-#endif
 
 	return ptrElem;
 

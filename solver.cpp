@@ -105,11 +105,10 @@ int main(int argc, char* argv[])
 	OperatorClasses* list;
 	createOperatorsList(list);	// Creating operators hierarchy
 	
-	// Expression string
-	string str = "sqrt(((-log(2(1+abs((3+2^(4-3)/5+6-1.2-8/10)-2(2-1)(45/9)-log(10)))+40/50))^3+2)*5^2)";
-	
+	string str;
 
-	cout << "\nEXP-SOLVER\n\n";
+	//Reading from stdin
+	cin >> str;
 
 	// Main expression
 	Expression exp(str, list, map);
@@ -119,10 +118,10 @@ int main(int argc, char* argv[])
 
 	if (code == OK) {								// Checking if parsing gone ok
 		value = (exp.calculate())->value;			// Expression::calculate returns EssentialElement*
-		cout << "EXPRESSION VALUE: " << value << "\n\n";
+		cout << value << endl;
 	}
-
-	cout << "ERROR CODE: " << code << endl;
+	else
+	cout << "ERROR: " << code << endl;
 
 	return 0;
 }

@@ -80,7 +80,6 @@ typedef std::map<CharType, ElemFunction> MapElemFunction;
 typedef struct EssentialElement {
 				Numeric value;
 				std::string strOperator;
-				std::string strFunction;
 } EssentialElement;
 
 
