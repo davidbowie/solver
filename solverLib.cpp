@@ -403,7 +403,10 @@ ReturnCode Expression::_closeSubExpression(Signal signal){
 #ifdef DEBUG
 	cout << "C";
 #endif
-	openedBraces--;
+	if (--openedBraces < 0)
+	{
+		return PARSE_ERROR;
+	}
 
 	switch (signal) {
 
@@ -549,7 +552,7 @@ ReturnCode Expression::parse(){
 		return code;
 	}
 
-	if (openedBraces) {
+	if (openedBraces != 0) {
 #ifdef DEBUG
 	cout << "SYNTAX ERROR" << endl;
 #endif
