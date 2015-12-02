@@ -1,0 +1,38 @@
+/*
+EXP-SOLVER - program calculating math expressions
+
+solverFunc.h - Math functions header file  
+
+Copyright (C) 2015 Marcin Możejko
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef SOLVERFUNC_H
+#define SOLVERFUNC_H
+
+#include "solverLib.h"
+
+Numeric add(Numeric a, Numeric b);	// +
+Numeric sub(Numeric a, Numeric b);	// -
+Numeric mul(Numeric a, Numeric b);	// *
+Numeric div(Numeric a, Numeric b);	// /
+Numeric tg(Numeric a);				// tangens
+Numeric ctg(Numeric a);				// cotangens
+Numeric sec(Numeric a);				// secans
+Numeric csc(Numeric a);				// cosecans
+Numeric atg(Numeric a);				// arcus tangens
+Numeric actg(Numeric a);			// arcus cotangens
+
+#endif // SOLVERFUNC_H

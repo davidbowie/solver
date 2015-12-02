@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-g -c -Wall -std=c++11
 LDFLAGS=
-SOURCES=solver.cpp solverLib.cpp
+SOURCES=solver.cpp solverLib.cpp solverFunc.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=solver
 

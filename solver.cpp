@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "solverTempl.h"
 #include "solverLib.h"
+#include "solverFunc.h"
 #include <iostream>
 #include <math.h>
 
@@ -28,25 +29,7 @@ using namespace std;
 
 // Elementary arithmetic functions
 
-Numeric add(Numeric a, Numeric b) {
 
-	return a + b;
-}
-
-Numeric subtract(Numeric a, Numeric b) {
-
-	return a - b;
-}
-
-Numeric multiply(Numeric a, Numeric b) {
-
-	return a * b;
-}
-
-Numeric divide(Numeric a, Numeric b) {
-
-	return a / b;
-}
 
 // Create list of operators hierarchy
 void createOperatorsList(OperatorClasses*& list)
@@ -78,19 +61,29 @@ void mapOperations(Mapping*& map) {
 
 	map = &Mapping::Instance();
 
-	// Elementary functions
-	map->add("+", 	add);
-	map->add("-", 	subtract);
-	map->add("*",	multiply);
-	map->add("/",	divide);
 	// math.h functions
-	map->add("^",	pow);
-	map->add("ln",	log);
-	map->add("log",	log10);
-	map->add("sin",	sin);
-	map->add("cos",	cos);
-	map->add("sqrt",sqrt);
-	map->add("abs",	fabs);
+	map->add("^",	pow);		// power
+	map->add("ln",	log);		// natural logarithm
+	map->add("log",	log10);		// common logarithm
+	map->add("sin",	sin);		// sinus
+	map->add("cos",	cos);		// cosinus
+	map->add("arcsin", asin);	// arcus sinus
+	map->add("arccos", acos);	// arcus cosinus
+	map->add("sqrt",   sqrt);	// square root
+	map->add("cbrt",   cbrt);   // cube root 
+	map->add("abs",	fabs);		// absolute
+	
+	// solverFunc.h functions
+	map->add("+", 	add);		// addition
+	map->add("-", 	sub);		// subtraction
+	map->add("*",	mul);		// multiplication
+	map->add("/",	div);		// division
+	map->add("tg",  tg);		// tangens
+	map->add("ctg", ctg);		// cotangens
+	map->add("sec", sec);		// secans
+	map->add("csc", csc);		// cosecans
+	map->add("arctg",  atg);	// arcus tangens
+	map->add("arcctg", actg);	// arcus cotangens
 }
 
 int main(int argc, char* argv[])
