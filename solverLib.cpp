@@ -1,7 +1,7 @@
 /*
 EXP-SOLVER - program calculating math expressions
 
-solverLib.cpp -  main library 
+solverLib.cpp -  main library
 
 Copyright (C) 2015 Marcin Możejko
 
@@ -33,7 +33,7 @@ OperatorClasses* OperatorClasses::thisInstance = NULL;
 Mapping* Expression::operatorMapping = NULL;
 StatesMap* Expression::states = NULL;
 
-CharType Expression::charType = type_unknown;
+CharType Expression::charType = CHARTYPE_UNKNOWN;
 
 CharType Expression::currentCharType;
 CharType Expression::precedingCharType;
@@ -47,11 +47,11 @@ string Expression::strVar = "";
 string::iterator Expression::parsePos;
 
 /*
- *  OperatorClass class methods 
+ *  OperatorClass class methods
  */
 
-void OperatorClass::updateList() {
-
+void OperatorClass::updateList()
+{
 	ListIterator<Operator> i;
 
 	for (i = objects.begin(); i != objects.end(); ++i)
@@ -59,54 +59,53 @@ void OperatorClass::updateList() {
 }
 
 /*
- *  OperatorClasses class methods 
+ *  OperatorClasses class methods
  */
 
-OperatorClasses& OperatorClasses::Instance() {
-
+OperatorClasses& OperatorClasses::Instance()
+{
 	static OperatorClasses instance;
 	thisInstance = &instance;
 	return instance;
 }
 
 
-void OperatorClasses::updateList() {
-	
+void OperatorClasses::updateList()
+{
 	thisInstance->first();
 	do {
 		all += thisInstance->getCurrent()->getAll();
-	} while (thisInstance->next()); 	
+	} while (thisInstance->next());
 }
 
 
 /*
  *  OperatorBindingClasses methods
  */
-OperatorBindingClasses::OperatorBindingClasses(OperatorClasses* const operatorClasses) {
-
+OperatorBindingClasses::OperatorBindingClasses(OperatorClasses* const operatorClasses)
+{
 	SharedPtr<OperatorBindingClass> ptr;
 
 	operatorClasses->first();
 	do {
 		ptr = SharedPtr<OperatorBindingClass>(new OperatorBindingClass(operatorClasses->getCurrent()));
-		add(ptr);	
+		add(ptr);
 
 	} while (operatorClasses->next());
 }
 
-void OperatorBindingClasses::bindElement(SharedPtr<EssentialElement> essentialElement) {
-
+void OperatorBindingClasses::bindElement(SharedPtr<Element> element)
+{
 	string operators, op;
 	SharedPtr<OperatorClass> opClass;
 
-
 	first();
 	do {
-		op = essentialElement->strOperator;
+		op = element->strOperator;
 		opClass = getCurrent()->getOperatorClass();
 		operators = opClass->getAll();
 		if (operators.find_first_of(op) != string::npos)
-			getCurrent()->add(essentialElement);
+			getCurrent()->add(element);
 
 	} while (next());
 }
@@ -115,13 +114,13 @@ void OperatorBindingClasses::bindElement(SharedPtr<EssentialElement> essentialEl
  *  Mapping class methods
  */
 
-void Mapping::add(string symbol, FPtrOneArg func) {
-
+void Mapping::add(string symbol, FPtrOneArg func)
+{
 	m1[symbol] = func;
 }
 
-void Mapping::add(string symbol, FPtrTwoArgs func) {
-
+void Mapping::add(string symbol, FPtrTwoArgs func)
+{
 	m2[symbol] = func;
 }
 
@@ -135,114 +134,114 @@ Numeric Mapping::operate(string symbol, Numeric a)
 	return m1[symbol](a);
 }
 
-Mapping& Mapping::Instance() {
-
+Mapping& Mapping::Instance()
+{
 	static Mapping instance;
 	return instance;
 }
 
-/* 
+/*
  *  StateBinding methods
  */
-void StateBinding::add(CharType precedingChar, FPtr function, Signal signal) {
-
+void StateBinding::add(CharType precedingChar, FPtr function, Action action)
+{
 	ElemFunction elemFunction;
 	elemFunction.function = function;
-	elemFunction.signal = signal;
+	elemFunction.action = action;
 
 	map[precedingChar] = elemFunction;
 }
 
-ReturnCode StateBinding::exec(CharType precedingChar, Expression* thisExpression) {
-
+ReturnCode StateBinding::exec(CharType precedingChar, Expression* thisExpression)
+{
 	if (map[precedingChar].function != NULL)
-		return (thisExpression->*(map[precedingChar].function))(map[precedingChar].signal); // call function with signal
+		return (thisExpression->*(map[precedingChar].function))(map[precedingChar].action); // call function with action
 	return EXEC_ERROR;
 }
 
-CharType StateBinding::getType() {
-
-	return currentChar; 
+CharType StateBinding::getType()
+{
+	return currentChar;
 }
 
-MapElemFunction::iterator StateBinding::find(CharType charType) {
-
+MapElemFunction::iterator StateBinding::find(CharType charType)
+{
 	return map.find(charType);
 }
 
-MapElemFunction::iterator StateBinding::end() {
-
+MapElemFunction::iterator StateBinding::end()
+{
 	return map.end();
 }
 
 /*
  *  StateMap methods
  */
-void StatesMap::initialize(Expression* thisExpression) {
-
+void StatesMap::initialize(Expression* thisExpression)
+{
 	SharedPtr<StateBinding> ptr;
 
 	// currently read characters
-	add(SharedPtr<StateBinding>(new StateBinding(type_dot)));
-	add(SharedPtr<StateBinding>(new StateBinding(type_brace_open)));
-	add(SharedPtr<StateBinding>(new StateBinding(type_brace_close)));
-	add(SharedPtr<StateBinding>(new StateBinding(type_letter)));
-	add(SharedPtr<StateBinding>(new StateBinding(type_digit)));
-	add(SharedPtr<StateBinding>(new StateBinding(type_operator)));
-	add(SharedPtr<StateBinding>(new StateBinding(type_unknown)));
-	
+	add(SharedPtr<StateBinding>(new StateBinding(CHARTYPE_DOT)));
+	add(SharedPtr<StateBinding>(new StateBinding(CHARTYPE_BRACE_OPEN)));
+	add(SharedPtr<StateBinding>(new StateBinding(CHARTYPE_BRACE_CLOSE)));
+	add(SharedPtr<StateBinding>(new StateBinding(CHARTYPE_LETTER)));
+	add(SharedPtr<StateBinding>(new StateBinding(CHARTYPE_DIGIT)));
+	add(SharedPtr<StateBinding>(new StateBinding(CHARTYPE_OPERATOR)));
+	add(SharedPtr<StateBinding>(new StateBinding(CHARTYPE_UNKNOWN)));
+
 	// now we assign to them preceding characters and function to execute
 	// DOT
 	first();
 	ptr = getCurrent();
-	ptr->add(type_digit, &Expression::_getNumber, SIGNAL_DEFAULT);
-	
+	ptr->add(CHARTYPE_DIGIT, &Expression::_getNumber, SIGNAL_DEFAULT);
+
 	// BRACE_OPEN
 	next();
 	ptr = getCurrent();
-	ptr->add(type_brace_open, &Expression::_newSubExpression, SIGNAL_DEFAULT);
-	ptr->add(type_brace_close, &Expression::_newSubExpression, ATTACH_MUL_OPERATOR);
-	ptr->add(type_letter, &Expression::_newSubExpression, ATTACH_FUNCTION);
-	ptr->add(type_digit, &Expression::_newSubExpression, ATTACH_MUL_STORE_NUMBER);
-	ptr->add(type_operator, &Expression::_newSubExpression, ATTACH_OPERATOR);
-	ptr->add(type_unknown, &Expression::_newSubExpression, SIGNAL_DEFAULT);
-	
+	ptr->add(CHARTYPE_BRACE_OPEN, &Expression::_newSubExpression, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_BRACE_CLOSE, &Expression::_newSubExpression, ATTACH_MUL_OPERATOR);
+	ptr->add(CHARTYPE_LETTER, &Expression::_newSubExpression, ATTACH_FUNCTION);
+	ptr->add(CHARTYPE_DIGIT, &Expression::_newSubExpression, ATTACH_MUL_STORE_NUMBER);
+	ptr->add(CHARTYPE_OPERATOR, &Expression::_newSubExpression, ATTACH_OPERATOR);
+	ptr->add(CHARTYPE_UNKNOWN, &Expression::_newSubExpression, SIGNAL_DEFAULT);
+
 	// BRACE_CLOSE
 	next();
 	ptr = getCurrent();
-	ptr->add(type_brace_close, &Expression::_closeSubExpression, SIGNAL_DEFAULT);
-	ptr->add(type_digit, &Expression::_closeSubExpression, STORE_NUMBER);
+	ptr->add(CHARTYPE_BRACE_CLOSE, &Expression::_closeSubExpression, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_DIGIT, &Expression::_closeSubExpression, STORE_NUMBER);
 
 	// LETTER
 	next();
 	ptr = getCurrent();
-	ptr->add(type_brace_open, &Expression::_getFunction, SIGNAL_DEFAULT);
-	ptr->add(type_letter, &Expression::_getFunction, SIGNAL_DEFAULT);
-	ptr->add(type_operator, &Expression::_getFunction, SIGNAL_DEFAULT);
-	ptr->add(type_unknown, &Expression::_getFunction, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_BRACE_OPEN, &Expression::_getFunction, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_LETTER, &Expression::_getFunction, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_OPERATOR, &Expression::_getFunction, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_UNKNOWN, &Expression::_getFunction, SIGNAL_DEFAULT);
 
-	// NUMBER 
+	// NUMBER
 	next();
 	ptr = getCurrent();
-	ptr->add(type_dot, &Expression::_getNumber, SIGNAL_DEFAULT);
-	ptr->add(type_brace_open, &Expression::_getNumber, SIGNAL_DEFAULT);
-	ptr->add(type_digit, &Expression::_getNumber, SIGNAL_DEFAULT);
-	ptr->add(type_operator, &Expression::_getNumber, SIGNAL_DEFAULT);
-	ptr->add(type_unknown, &Expression::_getNumber, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_DOT, &Expression::_getNumber, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_BRACE_OPEN, &Expression::_getNumber, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_DIGIT, &Expression::_getNumber, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_OPERATOR, &Expression::_getNumber, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_UNKNOWN, &Expression::_getNumber, SIGNAL_DEFAULT);
 
 	// OPERATOR
 	next();
 	ptr = getCurrent();
-	ptr->add(type_brace_open, &Expression::_getOperator, CHECK_IF_MINUS);
-	ptr->add(type_brace_close, &Expression::_getOperator, SIGNAL_DEFAULT);
-	ptr->add(type_digit, &Expression::_getOperator, STORE_NUMBER);
-	ptr->add(type_unknown, &Expression::_getOperator, CHECK_IF_MINUS);
+	ptr->add(CHARTYPE_BRACE_OPEN, &Expression::_getOperator, CHECK_IF_MINUS);
+	ptr->add(CHARTYPE_BRACE_CLOSE, &Expression::_getOperator, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_DIGIT, &Expression::_getOperator, STORE_NUMBER);
+	ptr->add(CHARTYPE_UNKNOWN, &Expression::_getOperator, CHECK_IF_MINUS);
 
-	// UNKNOWN
+	// CHARTYPE_UNKNOWN
 	next();
 	ptr = getCurrent();
-	ptr->add(type_brace_close, &Expression::_null, SIGNAL_DEFAULT);
-	ptr->add(type_digit, &Expression::_null, STORE_NUMBER);
+	ptr->add(CHARTYPE_BRACE_CLOSE, &Expression::_null, SIGNAL_DEFAULT);
+	ptr->add(CHARTYPE_DIGIT, &Expression::_null, STORE_NUMBER);
 }
 
 /*
@@ -250,16 +249,16 @@ void StatesMap::initialize(Expression* thisExpression) {
  */
 
 // This constructor is called only once for the main expression
-Expression::Expression(std::string str, OperatorClasses* operatorClasses, Mapping* operatorMapping) {
-
+Expression::Expression(std::string str, OperatorClasses* operatorClasses, Mapping* operatorMapping)
+{
 	id = currentId++;
 	this->str = str;
 	this->value = 0;
 	this->operatorClasses = operatorClasses;
 	this->operatorMapping = operatorMapping;
 	parsePos = this->str.begin();					// Start position
-	this->currentCharType = type_unknown;
-	this->precedingCharType = type_unknown;
+	this->currentCharType = CHARTYPE_UNKNOWN;
+	this->precedingCharType = CHARTYPE_UNKNOWN;
 
 
 	states = new StatesMap();
@@ -269,8 +268,8 @@ Expression::Expression(std::string str, OperatorClasses* operatorClasses, Mappin
 }
 
 // This constructor is purposed for subexpressions
-Expression::Expression(std::string strOperator, std::string strFunction) {
-
+Expression::Expression(std::string strOperator, std::string strFunction)
+{
 	id = currentId++;
 	this->value = 0;
 	this->strOperator = strOperator;
@@ -280,33 +279,33 @@ Expression::Expression(std::string strOperator, std::string strFunction) {
 }
 
 
-CharType Expression::getCharType() {
-	
+CharType Expression::getCharType()
+{
 	if ((*parsePos >= 'a' && *parsePos <= 'z') ||
 		(*parsePos >= 'A' && *parsePos <= 'Z'))
-		return type_letter;
+		return CHARTYPE_LETTER;
 
 	else if (*parsePos >= '0' && *parsePos <= '9')
-		return type_digit;
+		return CHARTYPE_DIGIT;
 
 	else if (operatorClasses->getAll().find_first_of(*parsePos) != string::npos)
-		return type_operator;
+		return CHARTYPE_OPERATOR;
 
 	else if (*parsePos == '(')
-		return type_brace_open;
-	
+		return CHARTYPE_BRACE_OPEN;
+
 	else if (*parsePos == ')')
-		return type_brace_close;
+		return CHARTYPE_BRACE_CLOSE;
 
 	else if (*parsePos == '.')
-		return type_dot;
+		return CHARTYPE_DOT;
 
-	return type_unknown;	
+	return CHARTYPE_UNKNOWN;
 }
 
-SharedPtr<EssentialElement> Expression::getNumber() {
-
-	SharedPtr<EssentialElement> ptrElem = make_shared<EssentialElement>();
+SharedPtr<Element> Expression::getNumber()
+{
+	SharedPtr<Element> ptrElem = make_shared<Element>();
 	ptrElem->value = stod(strVar, NULL);
 	ptrElem->strOperator = temp_operator;
 	strVar = "";
@@ -314,35 +313,33 @@ SharedPtr<EssentialElement> Expression::getNumber() {
 
 }
 
-void Expression::addElement(SharedPtr<EssentialElement> ptrElem) {
-
+void Expression::addElement(SharedPtr<Element> ptrElem)
+{
 //	cout << "Added element: " << ptrElem->strOperator << ptrElem->value << endl;
 	add(ptrElem);
 	operatorBindingClasses->bindElement(ptrElem);
-
 }
 
-ReturnCode Expression::elementaryFunctionExec(CharType currentCharType, CharType precedingCharType){
-
+ReturnCode Expression::elementaryFunctionExec(CharType currentCharType, CharType precedingCharType)
+{
 	SharedPtr<StateBinding> current_state;
 
 	states->first();
 	do {
 		current_state = states->getCurrent();
-		if ((current_state->getType() == currentCharType) &&						// check if current char matches 
+		if ((current_state->getType() == currentCharType) &&						// check if current char matches
 			(current_state->find(precedingCharType) != current_state->end())) {		// check if preceding char matches
-			return current_state->exec(precedingCharType, this);					// Executing function	
+			return current_state->exec(precedingCharType, this);					// Executing function
 		}
 	} while (states->next());
 
 	return PARSE_ERROR;															// this should never happen
-
 }
 
 //====================================ELEMENTARY FUNCTIONS============================================
 
-ReturnCode Expression::_newSubExpression(Signal signal){
-
+ReturnCode Expression::_newSubExpression(Action action)
+{
 #ifdef DEBUG
 	cout << "S";
 #endif
@@ -353,7 +350,7 @@ ReturnCode Expression::_newSubExpression(Signal signal){
 	string strOperator = "";
 	string strFunction = "";
 
-	switch (signal) {
+	switch (action) {
 
 		case SIGNAL_DEFAULT:
 			strOperator = "+";
@@ -378,19 +375,19 @@ ReturnCode Expression::_newSubExpression(Signal signal){
 		default:
 			return SIGNAL_ERROR;
 
-	} //switch(signal)
+	}
 
 	// Creating new Expression instance
 	SharedPtr<Expression> subExp = SharedPtr<Expression>(new Expression(strOperator, strFunction));
-	SharedPtr<EssentialElement> subExpVal;
+	SharedPtr<Element> subExpVal;
 
-	this->parsePos++;	
+	this->parsePos++;
 	ReturnCode code = subExp->parse();			// Parsing sub-expression
-	
+
 	if (code == OK)
 	{
 		subExpVal = subExp->calculate();
-		addElement(subExpVal);	
+		addElement(subExpVal);
 	}
 
 	subExpVal.reset();
@@ -398,8 +395,8 @@ ReturnCode Expression::_newSubExpression(Signal signal){
 	return code;
 }
 
-ReturnCode Expression::_closeSubExpression(Signal signal){
-
+ReturnCode Expression::_closeSubExpression(Action action)
+{
 #ifdef DEBUG
 	cout << "C";
 #endif
@@ -408,28 +405,27 @@ ReturnCode Expression::_closeSubExpression(Signal signal){
 		return PARSE_ERROR;
 	}
 
-	switch (signal) {
+	switch (action) {
 
 		case STORE_NUMBER:
 			addElement(getNumber());
 			//cout << "STORE_NUMBER!!";
 		case SIGNAL_DEFAULT:
 			//cout << "SUB_EXIT!!";
-			return SUBEQUATION_EXIT;	
+			return SUBEQUATION_EXIT;
 
 		default:
 			return SIGNAL_ERROR;
-	} // switch(signal)
-
+	}
 }
 
-ReturnCode Expression::_getNumber(Signal signal){
-
+ReturnCode Expression::_getNumber(Action action)
+{
 #ifdef DEBUG
 	cout << "N";
 #endif
-	switch (signal) {
-	
+	switch (action) {
+
 		case SIGNAL_DEFAULT:
 			strVar+=getChar();					// get character
 			return OK;
@@ -437,15 +433,15 @@ ReturnCode Expression::_getNumber(Signal signal){
 		default:
 			return SIGNAL_ERROR;
 
-	} // switch(signal)
+	}
 }
 
-ReturnCode Expression::_getFunction(Signal signal){
-
+ReturnCode Expression::_getFunction(Action action)
+{
 #ifdef DEBUG
 	cout << "F";
 #endif
-	switch (signal) {
+	switch (action) {
 
 		case SIGNAL_DEFAULT:
 			strVar+=getChar();
@@ -453,16 +449,16 @@ ReturnCode Expression::_getFunction(Signal signal){
 
 		default:
 			return SIGNAL_ERROR;
-	} //switch(signal)
+	}
 }
 
-ReturnCode Expression::_getOperator(Signal signal){
-
+ReturnCode Expression::_getOperator(Action action)
+{
 #ifdef DEBUG
 	cout << "O";
-	cout << " - SIGNAL: " << signal << "\n";
+	cout << " - SIGNAL: " << action << "\n";
 #endif
-	switch (signal) {
+	switch (action) {
 
 		case STORE_NUMBER:
 			addElement(getNumber());
@@ -471,39 +467,38 @@ ReturnCode Expression::_getOperator(Signal signal){
 			return OK;
 		case CHECK_IF_MINUS:
 			temp_operator = getChar();
-			if (temp_operator != "-"){ 
+			if (temp_operator != "-"){
 				return PARSE_ERROR;
 			}
 			return OK;
 
 		default:
-			return SIGNAL_ERROR;			
+			return SIGNAL_ERROR;
 
-	} // switch (signal)
+	}
 }
 
-ReturnCode Expression::_null(Signal signal){
-
+ReturnCode Expression::_null(Action action)
+{
 #ifdef DEBUG
 	cout << ".";
 #endif
-	switch (signal) {
-	
+	switch (action) {
+
 		case STORE_NUMBER:
 			addElement(getNumber());
 			return OK;
 
 		default:
-			return SIGNAL_ERROR;	
-	} // switch(signal)
-
+			return SIGNAL_ERROR;
+	}
 }
 
 
 //====================================================================================================
 
-ReturnCode Expression::parse(){
-
+ReturnCode Expression::parse()
+{
 	string s;
 
 #ifdef DEBUG
@@ -516,8 +511,8 @@ ReturnCode Expression::parse(){
 	string::iterator end = str.end();		// Getting last position
 
 	while (parsePos != end) {
-	
-	
+
+
 		precedingCharType = currentCharType;
 		currentCharType = getCharType();
 
@@ -538,16 +533,16 @@ ReturnCode Expression::parse(){
 		}
 		else
 			parsePos++;
-	
+
 	} // while(parsePos != end)
 
 	//cout << "\n\nEND - CHAR: " << getChar() << "  TYPE: " << getCharType() << "\n";
 
-	code = elementaryFunctionExec(type_unknown, currentCharType);
+	code = elementaryFunctionExec(CHARTYPE_UNKNOWN, currentCharType);
 
 	if (code == PARSE_ERROR) {
 #ifdef DEBUG
-	cout << "P";
+	    cout << "P";
 #endif
 		return code;
 	}
@@ -568,8 +563,8 @@ ReturnCode Expression::parse(){
 }
 
 
-SharedPtr<EssentialElement> Expression::calculate(){
-
+SharedPtr<Element> Expression::calculate()
+{
 #ifdef DEBUG
 	cout << "\n\n============CALCULATING===========\n\n";
 #endif
@@ -580,11 +575,11 @@ SharedPtr<EssentialElement> Expression::calculate(){
 
 	SharedPtr<OperatorBindingClass> opBindClassPtr;
 	SharedPtr<OperatorClass> opClassPtr;
-	SharedPtr<EssentialElement> bindElemPtr;
-	SharedPtr<EssentialElement> expElemPtr;
-	SharedPtr<EssentialElement> obj;
+	SharedPtr<Element> bindElemPtr;
+	SharedPtr<Element> expElemPtr;
+	SharedPtr<Element> obj;
 	string allOperators;
-	ListIterator<EssentialElement> it;
+	ListIterator<Element> it;
 	bool highestPriority = false;
 	Numeric a, b;
 
@@ -614,20 +609,20 @@ SharedPtr<EssentialElement> Expression::calculate(){
 #endif
 		   highestPriority = true;
 		}
-		
+
 		opBindClassPtr = operatorBindingClasses->getCurrent();
 		opClassPtr = opBindClassPtr->getOperatorClass();
 #ifdef DEBUG
 		cout << "OPERATOR CLASS: " << opClassPtr->getPriority() << endl;
 #endif
 		opClassPtr->first();
-		allOperators = opClassPtr->getAll();			
+		allOperators = opClassPtr->getAll();
 #ifdef DEBUG
 		cout << "OPERATORS: " << allOperators << endl;
 #endif
 		opBindClassPtr->first();
 		if (!opBindClassPtr->empty()) {
-		
+
 
 			do {
 				bindElemPtr = opBindClassPtr->getCurrent();
@@ -636,8 +631,8 @@ SharedPtr<EssentialElement> Expression::calculate(){
 #ifdef DEBUG
 				cout << bindElemPtr->strOperator;
 				cout << bindElemPtr->value << " ";
-#endif		
-			
+#endif
+
 				it = find(bindElemPtr);
 
 
@@ -648,18 +643,18 @@ SharedPtr<EssentialElement> Expression::calculate(){
 #ifdef DEBUG
 					cout << "\n\n+++++++++++++CALCULATING FUNCTION!+++++++++++\nVALUE BEFORE: " << obj->value;
 #endif
-					// assigning the value returned from the function 
+					// assigning the value returned from the function
 					b = operatorMapping->operate(bindElemPtr->strFunction, obj->value);
 #ifdef DEBUG
 					cout << "\nVALUE AFTER: " << b << "\n\n";
-#endif			
+#endif
 				}
 				else*/
 					// no function
 					b = obj->value;						// Getting numeric value
-			
+
 				del(it);							// Deleting pointer from list
-				obj.reset();						// Deleting ownership of EssentialElement
+				obj.reset();						// Deleting ownership of Element
 
 				if (highestPriority) {
 					this->value =
@@ -671,17 +666,17 @@ SharedPtr<EssentialElement> Expression::calculate(){
 					a = obj->value;						// Getting value
 
 					// Assigning new value to predecessor
-					obj->value = operatorMapping->operate(bindElemPtr->strOperator, a, b);			
+					obj->value = operatorMapping->operate(bindElemPtr->strOperator, a, b);
 				}
-			
-				bindElemPtr.reset();					// We wont use it anymore	
+
+				bindElemPtr.reset();					// We wont use it anymore
 			/*
-			 * Ownerships of EssentialElement are fully removed, so destructor's gonna be called
+			 * Ownerships of Element are fully removed, so destructor's gonna be called
 			 * No memory leaks. (I think so)
 			 */
 
 
-			} while (opBindClassPtr->next());	
+			} while (opBindClassPtr->next());
 		} // if (!opBindClassPtr->empty())
 #ifdef DEBUG
 	cout << endl;
@@ -701,17 +696,16 @@ SharedPtr<EssentialElement> Expression::calculate(){
 #ifdef DEBUG
 		cout << "\n\n+++++++++++++CALCULATING FUNCTION!+++++++++++\nVALUE BEFORE: " << this->value;
 #endif
-					// assigning the value returned from the function 
+					// assigning the value returned from the function
 		this->value = operatorMapping->operate(this->strFunction, this->value);
 #ifdef DEBUG
 		cout << "\nVALUE AFTER: " << this->value << "\n\n";
-#endif			
+#endif
 	}
 
-	SharedPtr<EssentialElement> ptrElem = make_shared<EssentialElement>();
+	SharedPtr<Element> ptrElem = make_shared<Element>();
 	ptrElem->value = this->value;
 	ptrElem->strOperator = this->strOperator;
 
 	return ptrElem;
-
 }

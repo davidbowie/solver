@@ -1,7 +1,7 @@
 /*
 EXP-SOLVER - program calculating math expressions
 
-solver.cpp -  main program 
+solver.cpp -  main program
 
 Copyright (C) 2015 Marcin Możejko
 
@@ -49,7 +49,7 @@ void createOperatorsList(OperatorClasses*& list)
 	list->getCurrent()->add(make_shared<Operator>("/"));
 	list->getCurrent()->updateList();
 	list->next();
-	// Class 2: + - 
+	// Class 2: + -
 	list->getCurrent()->add(make_shared<Operator>("+"));
 	list->getCurrent()->add(make_shared<Operator>("-"));
 	list->getCurrent()->updateList();
@@ -70,9 +70,9 @@ void mapOperations(Mapping*& map) {
 	map->add("arcsin", asin);	// arcus sinus
 	map->add("arccos", acos);	// arcus cosinus
 	map->add("sqrt",   sqrt);	// square root
-	map->add("cbrt",   cbrt);   // cube root 
+	map->add("cbrt",   cbrt);   // cube root
 	map->add("abs",	fabs);		// absolute
-	
+
 	// solverFunc.h functions
 	map->add("+", 	add);		// addition
 	map->add("-", 	sub);		// subtraction
@@ -93,14 +93,14 @@ int main(int argc, char* argv[])
 
     Mapping* map;				// Mapping functions and operators
 	mapOperations(map);
-	
+
 	OperatorClasses* list;
 	createOperatorsList(list);	// Creating operators hierarchy
-	
-	string str;
+
+	string str = "2*3";
 
 	//Reading from stdin
-	cin >> str;
+	//cin >> str;
 
 	// Main expression
 	Expression exp(str, list, map);
